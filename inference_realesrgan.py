@@ -99,11 +99,11 @@ def main():
         paths = sorted(glob.glob(os.path.join(args.input, '*')))
 
     for idx, path in enumerate(paths):
-        
         imgname, extension = os.path.splitext(os.path.basename(path))
         print('Testing', idx, imgname)
             
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        print(img)
         if img == None:
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if img == None:
