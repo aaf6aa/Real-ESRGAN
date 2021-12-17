@@ -99,40 +99,38 @@ def main():
         paths = sorted(glob.glob(os.path.join(args.input, '*')))
 
     for idx, path in enumerate(paths):
+        
+        imgname, extension = os.path.splitext(os.path.basename(path))
+        print('Testing', idx, imgname)
+            
+        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        if img == None:
+            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if img == None:
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
+            
+        if len(img.shape) == 3 and img.shape[2] == 4:
+            img_mode = 'RGBA'
+        else:
+            img_mode = None
+            
         try:
-            imgname, extension = os.path.splitext(os.path.basename(path))
-            print('Testing', idx, imgname)
-            
-            img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-            if img == None:
-                img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-            if img == None:
-                img = cv2.imread(path, cv2.IMREAD_COLOR)
-            
-            if len(img.shape) == 3 and img.shape[2] == 4:
-                img_mode = 'RGBA'
+            if args.face_enhance:
+                _, _, output = face_enhancer.enhance(img, has_aligned=False, only_center_face=False, paste_back=True)
             else:
-                img_mode = None
-            
-            try:
-                if args.face_enhance:
-                    _, _, output = face_enhancer.enhance(img, has_aligned=False, only_center_face=False, paste_back=True)
-                else:
-                    output, _ = upsampler.enhance(img, outscale=args.outscale)
-            except RuntimeError as error:
-                print('Error', error)
-                print('If you encounter CUDA out of memory, try to set --tile with a smaller number.')
+                output, _ = upsampler.enhance(img, outscale=args.outscale)
+        except RuntimeError as error:
+            print('Error', error)
+            print('If you encounter CUDA out of memory, try to set --tile with a smaller number.')
+        else:
+            if args.ext == 'auto':
+                extension = extension[1:]
             else:
-                if args.ext == 'auto':
-                    extension = extension[1:]
-                else:
-                    extension = args.ext
-                if img_mode == 'RGBA':  # RGBA images should be saved in png format
-                    extension = 'png'
-                save_path = os.path.join(args.output, f'{imgname}_{args.suffix}.{extension}')
-                cv2.imwrite(save_path, output)
-        except:
-            continue
+                extension = args.ext
+            if img_mode == 'RGBA':  # RGBA images should be saved in png format
+                extension = 'png'
+            save_path = os.path.join(args.output, f'{imgname}_{args.suffix}.{extension}')
+            cv2.imwrite(save_path, output)
 
 if __name__ == '__main__':
     main()
