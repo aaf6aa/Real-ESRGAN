@@ -102,14 +102,16 @@ def main():
         try:
             imgname, extension = os.path.splitext(os.path.basename(path))
             print('Testing', idx, imgname)
-
-            img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
             
-            if img:
-                if len(img.shape) == 3 and img.shape[2] == 4:
-                    img_mode = 'RGBA'
-            else:
+            img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+            if img == None:
                 img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            if img == None:
+                img = cv2.imread(path, cv2.IMREAD_COLOR)
+            
+            if len(img.shape) == 3 and img.shape[2] == 4:
+                img_mode = 'RGBA'
+            else:
                 img_mode = None
             
             try:
