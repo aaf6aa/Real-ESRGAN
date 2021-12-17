@@ -103,16 +103,15 @@ def main():
         print('Testing', idx, imgname)
             
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        print(img)
-        if img == None:
+        
+        try:
+            if len(img.shape) == 3 and img.shape[2] == 4:
+                img_mode = 'RGBA'
+            else:
+                img_mode = 'Gray'
+        except:
             img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        if img == None:
-            img = cv2.imread(path, cv2.IMREAD_COLOR)
-            
-        if len(img.shape) == 3 and img.shape[2] == 4:
-            img_mode = 'RGBA'
-        else:
-            img_mode = None
+            img_mode = 'Gray'
             
         try:
             if args.face_enhance:
